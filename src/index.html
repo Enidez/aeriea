@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aériea</title>
+<style>
+:root{color-scheme:dark}
+html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:Georgia,'Times New Roman',serif;color:#fff}
+canvas{display:block}
+.hud{position:fixed;pointer-events:none;text-shadow:0 2px 4px rgba(0,0,0,.7)}
+#tl{top:18px;left:24px;font-size:22px;line-height:1.5}
+#tl .row{background:rgba(20,14,6,.45);padding:4px 14px;border-radius:10px;margin-bottom:6px;display:inline-block}
+#race{top:16px;left:50%;transform:translateX(-50%);text-align:center;display:none;background:rgba(20,14,6,.5);padding:8px 26px;border-radius:14px;border:2px solid #ffc21a}
+#rtime{font-size:44px;font-weight:bold;color:#ffd75a;font-variant-numeric:tabular-nums}
+#race .sub{font-size:20px}
+#flight{bottom:70px;right:30px;font-size:22px;text-align:right;display:none;background:rgba(20,14,6,.45);padding:8px 16px;border-radius:12px}
+#flight b{font-size:34px;color:#bfe6ff}
+#hints{bottom:16px;left:50%;transform:translateX(-50%);font-size:18px;background:rgba(20,14,6,.55);padding:8px 18px;border-radius:12px;white-space:nowrap;max-width:96vw;overflow:hidden;text-overflow:ellipsis}
+#hints b{color:#ffd75a}
+#toast{top:30%;left:50%;transform:translate(-50%,-50%) scale(.9);font-size:30px;background:rgba(20,14,6,.65);padding:14px 30px;border-radius:16px;opacity:0;transition:.3s;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.panel{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;background:radial-gradient(ellipse at center,rgba(30,20,8,.55),rgba(0,0,0,.8));transition:opacity .6s}
+#start h1{font-size:min(15vw,140px);margin:0;letter-spacing:.08em;color:#ffd75a;text-shadow:0 6px 0 #6b3d08,0 10px 30px rgba(0,0,0,.8)}
+#start p{font-size:24px;margin:8px}
+#start .go{font-size:32px;margin-top:28px;animation:pulse 1.6s infinite}
+#start.off{opacity:0;pointer-events:none}
+@keyframes pulse{50%{opacity:.5}}
+#fs{margin-top:22px;font:inherit;font-size:20px;padding:10px 22px;border-radius:12px;border:2px solid #ffd75a;background:rgba(0,0,0,.4);color:#ffd75a;cursor:pointer}
+.ctl{margin-top:24px;font-size:18px;opacity:.9;line-height:1.6}
+.ctl b{color:#ffd75a}
+#pause,#result{display:none}
+#pause.on,#result.on{display:flex}
+#result .big{font-size:120px}
+#result h2{font-size:48px;margin:0;color:#ffd75a}
+#result p{font-size:26px;margin:8px}
+.small{font-size:18px!important;opacity:.85}
+.rec{color:#7dff8a}
+</style></head><body>
+<div id="tl" class="hud"><div class="row" id="mode">🛡️ À pied</div><br><div class="row">🪙 <span id="coins">0</span> écus · 🏆 <span id="best">—</span></div></div>
+<div id="race" class="hud"><div id="rtime">0:00.0</div><div class="sub">Anneau <span id="rcount"></span> · <span id="rdist"></span></div></div>
+<div id="flight" class="hud"><b id="spd">0</b> km/h<br><b id="alt">0</b> m</div>
+<div id="hints" class="hud"></div>
+<div id="toast" class="hud"></div>
+<div id="start" class="panel">
+  <h1>AÉRIEA</h1>
+  <p>Chevauche ton aigle, galope sur ton destrier, conquiers la course des anneaux.</p>
+  <p id="loading">Chargement…</p>
+  <div class="go">Appuie sur ✕ (ou clique / Entrée) pour jouer</div>
+  <p id="padstate" class="small"></p>
+  <button id="fs">⛶ Plein écran (ou touche F)</button>
+  <div class="ctl">Vol : <b>stick gauche</b> piquer/monter/virer · <b>R2</b> battre des ailes · <b>L2</b> freiner · <b>L1/R1</b> tonneau<br>
+  <b>△</b> aigle · <b>□</b> cheval · <b>◯</b> descendre · <b>stick droit</b> caméra · <b>SHARE</b> inverser l’axe vertical · <b>OPTIONS</b> pause<br>
+  <span class="small">Clavier : ZQSD/WASD, Maj = R2, Ctrl = L2, Espace = ✕, E = △, Q = □, R = ◯, flèches = caméra, I = inverser, Échap = pause</span></div>
+</div>
+<div id="pause" class="panel"><h2 style="font-size:56px;color:#ffd75a;margin:0">Pause</h2>
+  <p style="font-size:24px">Axe vertical en vol : <b id="invert">normal</b> (SHARE pour changer)</p>
+  <p style="font-size:22px" id="targets"></p>
+  <p style="font-size:24px" id="pause-race">◯ abandonner la course</p>
+  <p style="font-size:24px">✕ ou OPTIONS pour reprendre</p></div>
+<div id="result" class="panel"></div>
+<script>/*BUNDLE*/</script>
+</body></html>

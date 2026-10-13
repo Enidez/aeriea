@@ -1,0 +1,15 @@
+{
+  "name": "aeriea",
+  "version": "1.0.0",
+  "description": "Jeu 3D médiéval : vol sur un aigle, course d'anneaux, balade à cheval (Three.js)",
+  "scripts": {
+    "build": "node build.mjs",
+    "slim-knight": "node tools/slim-knight.mjs"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "esbuild": "^0.25.10",
+    "three": "^0.180.0"
+  },
+  "private": true
+}
