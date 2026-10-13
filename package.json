@@ -4,12 +4,21 @@
   "description": "Jeu 3D médiéval : vol sur un aigle, course d'anneaux, balade à cheval (Three.js)",
   "scripts": {
     "build": "node build.mjs",
-    "slim-knight": "node tools/slim-knight.mjs"
+    "slim-knight": "node tools/slim-knight.mjs",
+    "dev": "node dev.mjs"
   },
   "license": "MIT",
   "dependencies": {
     "esbuild": "^0.25.10",
     "three": "^0.180.0"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@fontsource/barlow": "^5.3.0",
+    "@fontsource/barlow-condensed": "^5.3.0",
+    "@fontsource/cinzel": "^5.3.0",
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1"
+  }
 }

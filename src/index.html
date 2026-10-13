@@ -2,59 +2,192 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aériea</title>
 <style>
-:root{color-scheme:dark}
-html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:Georgia,'Times New Roman',serif;color:#fff}
+/*FONTS*/
+:root{
+  color-scheme:dark; --ui:1;
+  --ink:#f4f4f2; --mute:rgba(244,244,242,.58); --faint:rgba(244,244,242,.32); --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+  --glass:rgba(20,22,26,.52); --glass2:rgba(14,15,18,.72); --accent:#f1d08a; --red:#ff5a62; --green:#6ee7a0; --blue:#7fb2ff;
+  --g-x:#8fb8ff; --g-o:#ff8a92; --g-t:#5fe3b8; --g-s:#ff9fdc;
+  --display:'Barlow Condensed','Arial Narrow',sans-serif; --body:'Barlow','Inter','Segoe UI',system-ui,sans-serif; --title:'Cinzel',Georgia,serif;
+  --blur:blur(18px) saturate(140%); --r:16px; --shadow:0 10px 40px rgba(0,0,0,.35);
+}
+html{font-size:calc(16px * var(--ui))}
+html,body{margin:0;height:100%;overflow:hidden;background:#0a0b0d;color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
 canvas{display:block}
-.hud{position:fixed;pointer-events:none;text-shadow:0 2px 4px rgba(0,0,0,.7)}
-#tl{top:18px;left:24px;font-size:22px;line-height:1.5}
-#tl .row{background:rgba(20,14,6,.45);padding:4px 14px;border-radius:10px;margin-bottom:6px;display:inline-block}
-#race{top:16px;left:50%;transform:translateX(-50%);text-align:center;display:none;background:rgba(20,14,6,.5);padding:8px 26px;border-radius:14px;border:2px solid #ffc21a}
-#rtime{font-size:44px;font-weight:bold;color:#ffd75a;font-variant-numeric:tabular-nums}
-#race .sub{font-size:20px}
-#flight{bottom:70px;right:30px;font-size:22px;text-align:right;display:none;background:rgba(20,14,6,.45);padding:8px 16px;border-radius:12px}
-#flight b{font-size:34px;color:#bfe6ff}
-#hints{bottom:16px;left:50%;transform:translateX(-50%);font-size:18px;background:rgba(20,14,6,.55);padding:8px 18px;border-radius:12px;white-space:nowrap;max-width:96vw;overflow:hidden;text-overflow:ellipsis}
-#hints b{color:#ffd75a}
-#toast{top:30%;left:50%;transform:translate(-50%,-50%) scale(.9);font-size:30px;background:rgba(20,14,6,.65);padding:14px 30px;border-radius:16px;opacity:0;transition:.3s;text-align:center}
-#toast.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
-.panel{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;background:radial-gradient(ellipse at center,rgba(30,20,8,.55),rgba(0,0,0,.8));transition:opacity .6s}
-#start h1{font-size:min(15vw,140px);margin:0;letter-spacing:.08em;color:#ffd75a;text-shadow:0 6px 0 #6b3d08,0 10px 30px rgba(0,0,0,.8)}
-#start p{font-size:24px;margin:8px}
-#start .go{font-size:32px;margin-top:28px;animation:pulse 1.6s infinite}
+button{font:inherit;color:inherit}
+.hud{position:fixed;pointer-events:none;z-index:5}
+body:not(.playing) .hud{visibility:hidden}
+.glass{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line);box-shadow:var(--shadow)}
+
+/* pastilles de touches */
+.g{display:inline-grid;place-items:center;min-width:1.55em;height:1.55em;padding:0 .4em;box-sizing:border-box;border-radius:.45em;background:rgba(255,255,255,.08);border:1px solid var(--line2);
+  font-family:var(--body);font-weight:600;font-style:normal;font-size:.78em;line-height:1;color:var(--ink);vertical-align:.08em;margin:0 .12em}
+.g.r{border-radius:50%;padding:0;width:1.55em;font-size:.85em}
+.g.x{color:var(--g-x)} .g.o{color:var(--g-o)} .g.t{color:var(--g-t)} .g.s{color:var(--g-s)}
+
+/* HUD haut-gauche */
+#tl{top:1rem;left:1rem;display:flex;flex-direction:column;gap:.4rem;align-items:flex-start}
+.plate{display:flex;align-items:center;gap:.55rem;padding:.45rem .85rem;border-radius:12px;font-size:.95rem;background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line)}
+#mode{font-weight:600;font-size:1rem}
+#mountName{color:var(--mute);font-size:.9rem;padding-left:.55rem;border-left:1px solid var(--line2)}
+#mountName:empty{display:none}
+.coins b{font-weight:600;font-size:1rem;font-variant-numeric:tabular-nums}
+.coin{width:.8rem;height:.8rem;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff1c2,var(--accent) 50%,#a87a22)}
+.coins .lbl{color:var(--mute);font-size:.88rem;margin-right:.35rem}
+
+/* course */
+#race{top:1rem;left:50%;transform:translateX(-50%);text-align:center;display:none;padding:.55rem 1.4rem;border-radius:var(--r);background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line)}
+#rtime{font-family:var(--display);font-weight:700;font-size:2.4rem;line-height:1;font-variant-numeric:tabular-nums}
+#race .sub{color:var(--mute);font-size:.9rem;margin-top:.15rem}
+
+/* vol */
+#flight{bottom:4.6rem;right:1.2rem;display:none;text-align:right;padding:.6rem 1rem;border-radius:var(--r);background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line)}
+.gauge{display:flex;align-items:baseline;justify-content:flex-end;gap:.35rem}
+.gauge b{font-family:var(--display);font-weight:700;font-size:2.3rem;line-height:1;font-variant-numeric:tabular-nums}
+.gauge span{font-size:.8rem;color:var(--mute);min-width:2.8rem;text-align:left}
+.gauge.alt b{font-size:1.5rem;color:var(--mute)}
+
+/* barre d'aide */
+#hints{bottom:1rem;left:50%;transform:translateX(-50%);display:flex;flex-wrap:wrap;justify-content:center;gap:.2rem 1rem;max-width:min(92vw,58rem);box-sizing:border-box;
+  padding:.5rem 1.1rem;border-radius:14px;font-size:.88rem;color:var(--mute);background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line)}
+#hints .h{white-space:nowrap;display:inline-flex;align-items:center;gap:.2rem}
+
+/* toast */
+#toast{top:1.1rem;left:50%;transform:translate(-50%,-.6rem);opacity:0;transition:opacity .25s,transform .3s;padding:.65rem 1.2rem;border-radius:14px;text-align:center;
+  font-size:1rem;font-weight:500;max-width:min(86vw,34rem);line-height:1.45;background:var(--glass2);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line2);box-shadow:var(--shadow)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#toast b{font-weight:600}
+body.fight #toast{top:5.2rem}
+
+/* combos */
+#trick{bottom:4.8rem;left:50%;transform:translateX(-50%) translateY(.5rem);text-align:center;opacity:0;transition:.25s}
+#trick.on{opacity:1;transform:translateX(-50%)}
+#tnames{font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);text-shadow:0 1px 6px rgba(0,0,0,.6)}
+#tscore{font-family:var(--display);font-weight:700;font-size:2.8rem;line-height:1.05;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.45)}
+#trick.bank #tscore{color:var(--green)} #trick.fail #tscore{color:var(--red)}
+
+/* boss + barres */
+#boss{top:1rem;left:50%;transform:translateX(-50%);width:min(34rem,76vw);text-align:center;display:none}
+#boss .nm{font-family:var(--title);font-weight:700;font-size:.95rem;letter-spacing:.32em;color:var(--ink);text-shadow:0 1px 8px rgba(0,0,0,.7);margin-bottom:.45rem}
+.bar{position:relative;height:.42rem;background:rgba(0,0,0,.45);border-radius:99px;overflow:hidden;margin:.3rem 0;box-shadow:inset 0 0 0 1px var(--line)}
+.bar i{position:absolute;top:0;bottom:0;left:0;border-radius:99px;transition:width .12s}
+.bar .trail{background:rgba(255,255,255,.7);transition:width .6s .35s}
+.bar.post i{left:50%;transform:translateX(-50%)}
+#bossHp{background:var(--red)} #bossPost{background:var(--accent)}
+#boss.on,#pbars.on{display:block}
+#pbars{bottom:4.6rem;left:1rem;width:min(17rem,40vw);display:none;padding:.7rem .9rem;border-radius:var(--r);background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line)}
+#pbars .lab{font-size:.75rem;color:var(--mute);letter-spacing:.06em;margin-top:.25rem}
+#pHp{background:var(--green)} #pArmor{background:var(--blue)} #pPost{background:var(--accent)}
+#finisher{top:62%;left:50%;transform:translate(-50%,-50%);display:none;padding:.6rem 1.3rem;border-radius:99px;background:#fff;color:#111;font-weight:600;font-size:1.1rem;box-shadow:0 0 40px rgba(255,90,98,.5);animation:pulse .8s infinite}
+#finisher .g{background:#111;color:var(--g-o);border-color:#111}
+#finisher.on{display:block}
+
+/* écran titre */
+.panel{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;transition:opacity .6s}
+#start{background:linear-gradient(180deg,rgba(8,9,12,.15),rgba(8,9,12,.55) 55%,rgba(8,9,12,.85));overflow-y:auto}
 #start.off{opacity:0;pointer-events:none}
-@keyframes pulse{50%{opacity:.5}}
-#fs{margin-top:22px;font:inherit;font-size:20px;padding:10px 22px;border-radius:12px;border:2px solid #ffd75a;background:rgba(0,0,0,.4);color:#ffd75a;cursor:pointer}
-.ctl{margin-top:24px;font-size:18px;opacity:.9;line-height:1.6}
-.ctl b{color:#ffd75a}
-#pause,#result{display:none}
+.logo{font-family:var(--title);font-weight:700;font-size:clamp(3rem,9vw,6.5rem);line-height:1;letter-spacing:.32em;margin:0;padding-left:.32em;color:#fff;text-shadow:0 4px 40px rgba(0,0,0,.45)}
+.tag{font-size:.85rem;letter-spacing:.42em;text-transform:uppercase;color:var(--mute);margin:.9rem 0 0;padding-left:.42em}
+#loading{margin:.5rem;color:var(--faint);font-size:.9rem;min-height:1.3em}
+.choices{display:flex;gap:1rem;margin-top:1.8rem;flex-wrap:wrap;justify-content:center;padding:0 1rem}
+.choice{cursor:pointer;width:min(17rem,82vw);padding:1.1rem 1.2rem;text-align:left;border-radius:var(--r);outline:none;transition:transform .2s,background .2s,border-color .2s;
+  background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line)}
+.choice .in{display:block}
+.choice .ic{font-size:1.4rem}
+.choice b{display:block;font-weight:600;font-size:1.15rem;margin:.6rem 0 .3rem}
+.choice .d{font-size:.88rem;color:var(--mute);line-height:1.45}
+.choice:hover{background:rgba(255,255,255,.08)}
+.choice.sel,.choice:focus-visible{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.1);transform:translateY(-3px)}
+.promptbar{display:flex;gap:1.4rem;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:1.4rem;font-size:.92rem;color:var(--mute)}
+.promptbar > span{display:inline-flex;align-items:center;gap:.3rem}
+#padstate{color:var(--faint);font-size:.85rem;margin:.8rem 0 0}
+.btn{cursor:pointer;background:#fff;color:#111;border:0;padding:.5rem 1.05rem;border-radius:99px;font-weight:600;font-size:.88rem;transition:.15s}
+.btn:hover,.btn:focus-visible{background:#e8e8e8;outline:2px solid rgba(255,255,255,.4);outline-offset:2px}
+.ctl{margin-top:1.6rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:.4rem 1.4rem;max-width:50rem;padding:.9rem 1.2rem;text-align:left;font-size:.85rem;color:var(--mute);
+  border-radius:var(--r);background:rgba(20,22,26,.35);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line)}
+.ctl div{display:flex;align-items:center;gap:.45rem}
+.ctl .k{min-width:3.8rem;text-align:right}
+.kbd{color:var(--faint);font-size:.78rem;margin:.7rem 1rem 1rem}
+
+/* menu pause : panneau latéral */
+#pause{display:none;background:rgba(6,7,9,.35);flex-direction:row;align-items:stretch;justify-content:flex-start}
+#pause .side{width:min(26rem,92vw);box-sizing:border-box;padding:2rem 1.2rem;display:flex;flex-direction:column;gap:.3rem;text-align:left;
+  background:var(--glass2);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-right:1px solid var(--line)}
 #pause.on,#result.on{display:flex}
-#result .big{font-size:120px}
-#result h2{font-size:48px;margin:0;color:#ffd75a}
-#result p{font-size:26px;margin:8px}
-.small{font-size:18px!important;opacity:.85}
-.rec{color:#7dff8a}
+#pause h2{font-weight:600;font-size:1.35rem;margin:0 0 1rem .4rem}
+#menu{display:flex;flex-direction:column;gap:.25rem}
+.mrow{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem .9rem;border-radius:12px;border:1px solid transparent;transition:background .12s}
+.mrow .lb{font-weight:500;font-size:.98rem}
+.mrow .vl{display:flex;align-items:center;gap:.45rem;font-size:.9rem;color:var(--mute)}
+.mrow .ar{opacity:0;font-size:.7rem}
+.mrow:hover{background:rgba(255,255,255,.06)}
+.mrow.sel{background:#fff;color:#111} .mrow.sel .vl{color:#444} .mrow.sel .ar{opacity:1}
+#menuHelp{margin:1.2rem .4rem 0;color:var(--faint);font-size:.82rem;display:flex;gap:.9rem;flex-wrap:wrap}
+#menuHelp span{display:inline-flex;align-items:center;gap:.2rem}
+#targets{color:var(--faint);margin:.8rem .4rem 0;font-size:.82rem}
+
+/* résultat */
+#result{display:none;background:rgba(6,7,9,.55);backdrop-filter:blur(6px)}
+#result > *{max-width:30rem}
+#result .big{font-size:5rem;line-height:1}
+#result h2{font-weight:600;font-size:2rem;margin:.6rem 0 .3rem}
+#result p{font-size:1rem;margin:.35rem;color:var(--mute)}
+#result p b{color:var(--ink)}
+.small{font-size:.85rem!important;color:var(--faint)!important}
+.rec{color:var(--green)!important;font-weight:600}
+
+@keyframes pulse{50%{opacity:.7}}
+@keyframes rise{from{opacity:0;transform:translateY(.8rem)}to{opacity:1;transform:none}}
+#start .logo,#start .tag,#start .choices,#start .promptbar{animation:rise .9s both} #start .tag{animation-delay:.08s} #start .choices{animation-delay:.16s} #start .promptbar{animation-delay:.24s}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.reduce *{animation:none!important}
+@media (max-width:700px){#hints{font-size:.78rem}.ctl{display:none}}
 </style></head><body>
-<div id="tl" class="hud"><div class="row" id="mode">🛡️ À pied</div><br><div class="row">🪙 <span id="coins">0</span> écus · 🏆 <span id="best">—</span></div></div>
-<div id="race" class="hud"><div id="rtime">0:00.0</div><div class="sub">Anneau <span id="rcount"></span> · <span id="rdist"></span></div></div>
-<div id="flight" class="hud"><b id="spd">0</b> km/h<br><b id="alt">0</b> m</div>
-<div id="hints" class="hud"></div>
-<div id="toast" class="hud"></div>
-<div id="start" class="panel">
-  <h1>AÉRIEA</h1>
-  <p>Chevauche ton aigle, galope sur ton destrier, conquiers la course des anneaux.</p>
-  <p id="loading">Chargement…</p>
-  <div class="go">Appuie sur ✕ (ou clique / Entrée) pour jouer</div>
-  <p id="padstate" class="small"></p>
-  <button id="fs">⛶ Plein écran (ou touche F)</button>
-  <div class="ctl">Vol : <b>stick gauche</b> piquer/monter/virer · <b>R2</b> battre des ailes · <b>L2</b> freiner · <b>L1/R1</b> tonneau<br>
-  <b>△</b> aigle · <b>□</b> cheval · <b>◯</b> descendre · <b>stick droit</b> caméra · <b>SHARE</b> inverser l’axe vertical · <b>OPTIONS</b> pause<br>
-  <span class="small">Clavier : ZQSD/WASD, Maj = R2, Ctrl = L2, Espace = ✕, E = △, Q = □, R = ◯, flèches = caméra, I = inverser, Échap = pause</span></div>
+<div id="tl" class="hud">
+  <div class="plate"><span id="mode">🛡️ À pied</span><span id="mountName"></span></div>
+  <div class="plate coins"><span class="coin"></span><b id="coins">0</b><span class="lbl">écus</span>🏆 <b id="best" style="font-size:1.2rem">—</b></div>
 </div>
-<div id="pause" class="panel"><h2 style="font-size:56px;color:#ffd75a;margin:0">Pause</h2>
-  <p style="font-size:24px">Axe vertical en vol : <b id="invert">normal</b> (SHARE pour changer)</p>
-  <p style="font-size:22px" id="targets"></p>
-  <p style="font-size:24px" id="pause-race">◯ abandonner la course</p>
-  <p style="font-size:24px">✕ ou OPTIONS pour reprendre</p></div>
+<div id="race" class="hud"><div id="rtime">0:00.0</div><div class="sub">Anneau <span id="rcount"></span> · <span id="rdist"></span></div></div>
+<div id="flight" class="hud"><div class="gauge"><b id="spd">0</b><span>km/h</span></div><div class="gauge alt"><b id="alt">0</b><span>m alt.</span></div></div>
+<div id="trick" class="hud"><div id="tnames"></div><div id="tscore"></div></div>
+<div id="hints" class="hud"></div>
+<div id="toast" class="hud" role="status" aria-live="polite"></div>
+<div id="boss" class="hud"><div class="nm">LE ROI EN ARMURE</div><div class="bar"><i class="trail" id="bossTrail" style="width:100%"></i><i id="bossHp" style="width:100%"></i></div><div class="bar post" style="height:.6rem"><i id="bossPost" style="width:0"></i></div></div>
+<div id="pbars" class="hud">
+  <div class="lab">❤ Vie</div><div class="bar"><i class="trail" id="pTrail" style="width:100%"></i><i id="pHp" style="width:100%"></i></div>
+  <div class="lab">🛡 Armure royale</div><div class="bar" style="height:.6rem"><i id="pArmor" style="width:100%"></i></div>
+  <div class="lab">Posture</div><div class="bar post" style="height:.6rem"><i id="pPost" style="width:0"></i></div>
+</div>
+<div id="finisher" class="hud"><span class="g r o">◯</span> Coup de grâce</div>
+
+<div id="start" class="panel">
+  <h1 class="logo">AÉRIEA</h1>
+  <p class="tag">Ciel · Dragons · Chevalerie</p>
+  <p id="loading">Chargement du royaume…</p>
+  <div class="choices">
+    <button class="choice sel"><span class="in"><span class="ic">🗺️</span><b>Exploration libre</b><span class="d">Vole où tu veux, découvre le royaume, enchaîne les figures et défie le roi.</span></span></button>
+    <button class="choice"><span class="in"><span class="ic">🏁</span><b>Course d’anneaux</b><span class="d">17 anneaux chronométrés. Médailles et Aigle d’Or à décrocher.</span></span></button>
+  </div>
+  <div class="promptbar"><span><span class="g">◀</span><span class="g">▶</span> Choisir</span><span><span class="g r x">✕</span> Jouer</span><button id="fs" class="btn">⛶ Plein écran · F</button></div>
+  <p id="padstate"></p>
+  <div class="ctl">
+    <div><span class="k"><span class="g">L</span></span> Se déplacer · piloter</div>
+    <div><span class="k"><span class="g">R</span></span> Caméra</div>
+    <div><span class="k"><span class="g">R2</span></span> Courir · battre des ailes</div>
+    <div><span class="k"><span class="g">L1</span><span class="g">R1</span></span> Tonneau · épée (à pied)</div>
+    <div><span class="k"><span class="g r x">✕</span></span> Sauter · se lever · esquive</div>
+    <div><span class="k"><span class="g r s">□</span></span> Cheval · looping · attaque</div>
+    <div><span class="k"><span class="g r t">△</span></span> Appeler la monture · coup lourd</div>
+    <div><span class="k"><span class="g r o">◯</span></span> Descendre · plonger · coup de grâce</div>
+  </div>
+  <p class="kbd">Clavier : ZQSD/WASD · Maj = R2 · Ctrl = L2 · Espace = ✕ · E = △ · Q = □ · R = ◯ · Z/C = L1/R1 · flèches = caméra · Échap = menu</p>
+</div>
+<div id="pause" class="panel" role="dialog" aria-label="Menu"><div class="side">
+  <h2>Menu</h2>
+  <div id="menu" role="menu"></div>
+  <div id="menuHelp"><span><span class="g">▲</span><span class="g">▼</span> Naviguer</span><span><span class="g">◀</span><span class="g">▶</span> Modifier</span><span><span class="g r x">✕</span> Valider</span><span><span class="g r o">◯</span> Reprendre</span></div>
+  <p id="targets"></p>
+</div></div>
 <div id="result" class="panel"></div>
 <script>/*BUNDLE*/</script>
 </body></html>
